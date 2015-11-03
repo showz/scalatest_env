@@ -1,0 +1,16 @@
+---
+- name: yum install mysql5.1
+  yum: name={{item}} state=installed
+  with_items:
+    - mysql
+    - mysql-devel
+    - mysql-server
+
+- name: install MySQL-python module
+  yum: name=MySQL-python state=installed
+
+- name: copy my.cnf
+  copy: src=my.cnf dest=/etc/my.cnf
+
+- name: start mysql
+  service: name=mysqld state=started enabled=true

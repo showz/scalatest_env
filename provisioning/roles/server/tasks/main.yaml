@@ -1,0 +1,18 @@
+---
+- name: copy iptables (web)
+  copy: src=iptables.web dest=/etc/sysconfig/iptables
+  sudo: yes
+  tags: web
+
+- name: copy iptables (db)
+  copy: src=iptables.db dest=/etc/sysconfig/iptables
+  sudo: yes
+  tags: db
+
+- name: restart iptables
+  service: name=iptables state=restarted
+  sudo: yes
+
+- name: set sudo
+  copy: src=vagrant dest=/etc/sudoers.d/vagrant
+  sudo: yes

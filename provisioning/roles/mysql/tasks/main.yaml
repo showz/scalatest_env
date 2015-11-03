@@ -1,0 +1,17 @@
+---
+- name: set mysql-community repository
+  shell: rpm -Uvh --force http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
+
+- name: yum install mysql5.6
+  yum: name={{item}} state=installed
+  with_items:
+    - mysql-community-server
+
+- name: install MySQL-python module
+  yum: name=MySQL-python state=installed
+
+- name: copy my.cnf
+  copy: src=my.cnf dest=/etc/my.cnf
+
+- name: start mysql
+  service: name=mysqld state=started enabled=true

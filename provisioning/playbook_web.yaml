@@ -1,0 +1,17 @@
+- name: web Playbook
+  hosts: web
+  sudo: yes
+  roles:
+    - { role: server }
+    - { role: scala }
+    - { role: mysqlclient }
+    - { role: nginx }
+    #- { role: jpegoptim }
+    - { role: source }
+  vars:
+    source_path: /var/www/html/scalatest/repo
+    jpegoptim_version: '1.4.2'
+    jpegoptim_tmp_path: /tmp
+    jpegoptim_source_path: "{{jpegoptim_tmp_path}}/jpegoptim.tar.gz"
+    jpegoptim_source_url: "https://github.com/tjko/jpegoptim/archive/RELEASE.{{jpegoptim_version}}.tar.gz"
+    jpegoptim_unpacked_sources_path: "{{jpegoptim_tmp_path}}/jpegoptim-RELEASE.{{jpegoptim_version}}"

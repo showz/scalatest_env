@@ -1,0 +1,24 @@
+---
+- name: install php-pear
+  yum: name=php-pear state=installed
+- name: install phpize
+  yum: name=php-devel state=installed
+- name: install apxs
+  yum: name=httpd-devel state=installed
+- name: install pcre-devel
+  yum: name=pcre-devel state=installed
+- name: install expect
+  yum: name=expect state=installed
+- name: copy install apc script
+  copy: src=install_apc.sh dest=/tmp owner=root group=root mode=0755
+- name : install apc
+  sudo: yes
+  command: sh /tmp/install_apc.sh
+- name: copy apc.ini
+  copy: src=apc.ini dest=/etc/php.d/ owner=root group=root mode=0755
+- name: mkdir webroot/admin
+  file: dest={{source_path}}/sys/app/webroot/console state=directory
+- name: cp apc.php
+  shell: creates=/usr/share/pear/apc.php cp /usr/share/pear/apc.php {{source_path}}/sys/app/webroot/console
+
+

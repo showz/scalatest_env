@@ -1,0 +1,23 @@
+---
+- name: install libjpeg
+  yum: name={{item}} state=latest
+  with_items:
+    - libjpeg
+    - libjpeg-turbo-devel
+
+- name: download source
+  get_url: dest={{jpegoptim_source_path}} url={{jpegoptim_source_url}}
+
+- name: unarchive source
+  unarchive: src={{jpegoptim_source_path}} dest={{jpegoptim_tmp_path}} copy=no creates={{jpegoptim_unpacked_sources_path}}
+  
+- name: install
+  shell: "{{item}}"
+  sudo: yes
+  args:
+    chdir: "{{jpegoptim_unpacked_sources_path}}"
+  with_items:
+   - './configure'
+   - 'make'
+   - 'make strip'
+   - 'make install'

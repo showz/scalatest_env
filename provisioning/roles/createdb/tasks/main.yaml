@@ -1,0 +1,27 @@
+---
+- name: remove database
+  shell: mysql -u root -e 'drop database if exists {{dbname}}'
+
+- name: create database
+  mysql_db: name={{dbname}} state=present encoding=utf8
+  
+- name: copy create_sql_file
+  copy: src={{create_sql_dir}}{{create_sql_file}} dest=/tmp
+
+- name: import create_sql_file
+  mysql_db: name={{dbname}} state=import target=/tmp/{{create_sql_file}}
+
+- name: copy dummy_data_sql_file
+  copy: src={{create_sql_dir}}{{dummy_data_sql_file}} dest=/tmp
+
+- name: import dummy_data_sql_file
+  mysql_db: name={{dbname}} state=import target=/tmp/{{dummy_data_sql_file}}
+
+- name: create mysql user
+  mysql_user: name={{dbuser}} password={{dbpassword}} priv={{dbname}}.*:ALL host={{web_ip}} state=present
+
+- name: remoce sql_file
+  file: path=/tmp/{{create_sql_file}} state=absent
+
+- name: remoce dummy_datasql_file
+  file: path=/tmp/{{dummy_data_sql_file}} state=absent

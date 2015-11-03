@@ -1,0 +1,31 @@
+---
+- name: nginx yum conf copy
+  copy: src=nginx.repo dest=/etc/yum.repos.d/nginx.repo
+
+- name: install nginx
+  yum: name={{item}} state=latest
+  with_items:
+    - nginx
+
+- name: check default.conf exists or not
+  shell: "[ -f /etc/nginx/conf.d/default.conf ] && echo 'Found' || echo ''"
+  register: default_conf_exists
+
+- name: default.conf rename
+  command: mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.org
+  when: (default_conf_exists.stdout)
+
+- name: copy scalatest conf
+  copy: src=scalatest.conf dest=/etc/nginx/conf.d/scalatest.conf
+
+- name: copy server crt
+  copy: src=server.crt dest=/etc/nginx/server.crt
+
+- name: copy server key
+  copy: src=server.key dest=/etc/nginx/server.key
+
+- name: nginx stop
+  service: name=nginx enabled=yes state=stopped
+
+- name: start nginx
+  service: name=nginx enabled=yes state=started

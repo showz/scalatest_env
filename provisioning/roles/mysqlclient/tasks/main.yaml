@@ -1,0 +1,8 @@
+---
+- name: set mysql-community repository
+  shell: rpm -Uvh --force http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
+
+- name: yum install mysql5.6
+  yum: name={{item}} state=installed
+  with_items:
+    - mysql-community-server

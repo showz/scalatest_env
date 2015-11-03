@@ -1,0 +1,26 @@
+---
+- name: install git
+  yum: name={{item}} state=present
+  with_items:
+    - git
+
+- name: nginx config copy scalatest.conf
+  copy: src=scalatest.conf dest=/etc/nginx/conf.d/scalatest.conf
+
+- name: nginx config copy server.crt
+  copy: src=server.crt dest=/etc/nginx/server.crt
+
+- name: nginx config copy server.key
+  copy: src=server.key dest=/etc/nginx/server.key
+
+- name: make comatch directory
+  file: path={{source_path}} state=directory owner=nginx group=nginx mode=0755
+
+- name: make current directory
+  file: src={{source_path}} dest=/var/www/html/scalatest/current state=link owner=nginx group=nginx mode=0755
+
+- name: chown nginx user
+  shell: chown -R nginx\:nginx /var/www/html/scalatest/current
+
+- name: nginx restart
+  service: name=nginx enabled=yes state=restarted

@@ -1,0 +1,9 @@
+---
+- name: install httpd
+  yum: name={{item}} state=latest
+  with_items:
+    - httpd
+    - mod_ssl
+
+- name: start httpd
+  service: name=httpd enabled=yes state=started

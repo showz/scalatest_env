@@ -1,0 +1,28 @@
+---
+- name: set epel repository
+  shell: rpm -Uvh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+- name: set remi repostory 
+  command: rpm -Uvh --force http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+
+#- name: set ius repostory 
+#  command: rpm -Uvh --force http://dl.iuscommunity.org/pub/ius/stable/Redhat/6/x86_64/ius-release-1.0-11.ius.el6.noarch.rpm
+
+- name: install php
+  yum: name={{item}} enablerepo=remi,epel,ius state=present
+  with_items:
+    - php-5.3.*
+    - php-common-5.3.*
+    - php-devel-5.3.*
+    - php-fpm-5.3.*
+    - php-process-5.3.*
+    - php-xml-5.3.*
+    - php-mbstring-5.3.*
+    - php-pdo-5.3.*
+    - php-mysql-5.3.*
+    - php-gd-5.3.*
+    - php-process-5.3.*
+    - mysql-client
+
+- name: copy mbstring.ini
+  copy: src=mbstring.ini dest=/etc/php.d/mbstring.ini owner=root group=root mode=0755

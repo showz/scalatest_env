@@ -1,0 +1,28 @@
+---
+- name: set epel repository
+  shell: rpm -Uvh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+- name: set remi repostory 
+  command: sudo rpm -Uvh --force http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+
+- name: install php
+  shell: yum install -y mysql \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-common-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-cli-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-devel-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-fpm-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-process-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-xml-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-mbstring-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-pdo-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-gd-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-process-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-bcmath-5.3.29-1.ius.centos6.x86_64.rpm \
+    http://dl.iuscommunity.org/pub/ius/archive/CentOS/6/x86_64/php53u-mysql-5.3.29-1.ius.centos6.x86_64.rpm
+
+- name: copy mbstring.ini
+  copy: src=mbstring.ini dest=/etc/php.d/mbstring.ini owner=root group=root mode=0755
+
+- name: change allow_url_fopen
+  lineinfile: dest=/etc/php.ini regexp="^; allow_url_fopen = Off"  line="allow_url_fopen = On"

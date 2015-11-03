@@ -1,0 +1,15 @@
+- name: db Playbook
+  hosts: db
+  sudo: yes
+  roles:
+    - { role: server }
+    - { role: mysql }
+    - { role: createdb }
+  vars:
+    dbname: scalatest
+    create_sql_dir:  src/Database/
+    create_sql_file: scalatest.sql
+    dummy_data_sql_file: dummy.sql
+    dbuser: dbuser
+    dbpassword: dbpassword 
+    web_ip: 192.168.37.11

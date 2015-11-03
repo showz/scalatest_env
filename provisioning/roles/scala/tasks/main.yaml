@@ -1,0 +1,26 @@
+---
+- name: set typesafe repository
+  shell: rpm -Uvh --force http://rpm.typesafe.com/typesafe-repo-2.0.0-1.noarch.rpm
+
+- name: install jdk
+  yum: name={{item}} state=latest
+  with_items:
+    - java-1.8.0-openjdk
+    - java-1.8.0-openjdk-devel
+    - scala
+    - sbt
+
+- name: Typesafe Activator Download
+  get_url: url="http://downloads.typesafe.com/typesafe-activator/1.3.6/typesafe-activator-1.3.6-minimal.zip" dest=/tmp validate_certs=no
+
+- name: unarchive Typesafe Activator
+  unarchive: src=/tmp/typesafe-activator-1.3.6-minimal.zip dest=/tmp copy=no creates=typesafe-activator-1.3.6-minimal
+
+- name: remove Typesafe Activator
+  file: path=/usr/local/lib/activator-1.3.6-minimal state=absent
+
+- name: rename Typesafe Activator
+  command: mv -u /tmp/activator-1.3.6-minimal /usr/local/lib/
+
+- name: symlink Typesafe Activator
+  file: src=/usr/local/lib/activator-1.3.6-minimal/activator dest=/usr/local/bin/activator state=link

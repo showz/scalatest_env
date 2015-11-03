@@ -1,0 +1,80 @@
+---
+- name: install git
+  yum: name={{item}} state=present
+  with_items:
+    - git
+
+- name: make source directory
+  file: path={{source_path}} state=directory owner=apache group=apache mode=0755
+
+- name: httpd config copy share.conf
+  copy: src=netrc dest=~/.netrc
+
+- name: make .ssh directory
+  file: path=~/.ssh state=directory owner=apache group=apache mode=0700
+
+- name: copy private key
+  copy: src=id_rsa dest=~/.ssh/id_rsa mode=0600
+
+- name: git clone
+  git: repo=coosy@coosy.git.backlog.jp\:/RECLO/sys.git dest={{source_path}} version={{branch}} key_file=/root/.ssh/id_rsa track_submodules=true accept_hostkey=true ssh_opts="-o StrictHostKeyChecking=no"
+
+- name: source chown apache
+  shell: chown -R apache\:apache {{source_path}}
+
+- name: git submodule
+  command: git submodule update --init --recursive chdir={{source_path}}
+
+- name: install composer
+  shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin creates=/usr/local/bin/composer
+  tags: composer
+
+- name: rename composer.phar to composer
+  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer creates=/usr/local/bin/composer
+  tags: composer
+
+- name: make composer executable
+  shell: chmod a+x /usr/local/bin/composer
+  tags: composer
+
+- name: composer install
+  composer: command=install working_dir={{source_path}}
+
+- name: httpd config copy vhosts.conf
+  copy: src=vhost.conf dest=/etc/httpd/conf.d/vhost.conf
+
+- name: httpd config mkdir vhosts
+  file: path=/etc/httpd/conf.d/vhosts state=directory owner=root group=root mode=0755
+
+- name: httpd config copy reclo.conf
+  copy: src=reclo.conf dest=/etc/httpd/conf.d/vhosts/reclo.conf
+
+- name: httpd config mkdir share
+  file: path=/etc/httpd/conf.d/vhosts/share state=directory owner=root group=root mode=0755
+
+- name: httpd config copy share.conf
+  copy: src=share.conf dest=/etc/httpd/conf.d/vhosts/share/share.conf
+
+- name: httpd.conf add LoadModule
+  lineinfile: dest=/etc/httpd/conf/httpd.conf line="LoadModule filter_module modules/mod_filter.so"
+
+- name: make reclo directory
+  file: path=/var/www/html/reclo state=directory owner=apache group=apache mode=0755
+
+- name: make current directory
+  file: src={{source_path}} dest=/var/www/html/reclo/current state=link owner=apache group=apache mode=0755
+
+- name: httpd restart
+  service: name=httpd enabled=yes state=restarted
+
+- name: copy database.php
+  copy: src=app/Config/development/database.php dest={{source_path}}/app/Config/development/database.php
+
+- name: copy email.php
+  copy: src=app/Config/development/email.php dest={{source_path}}/app/Config/development/email.php
+
+- name: copy initializer.php
+  copy: src=app/Config/development/initializer.php dest={{source_path}}/app/Config/development/initializer.php
+
+- name: copy AppConfig.php
+  copy: src=app/Config/development/AppConfig.php dest={{source_path}}/app/Config/development/AppConfig.php

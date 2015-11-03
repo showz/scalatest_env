@@ -1,0 +1,68 @@
+---
+- name: install git
+  yum: name={{item}} state=present
+  with_items:
+    - git
+    - python-passlib
+
+- name: httpd config copy zen.conf
+  copy: src=zen.conf dest=/etc/httpd/conf.d/zen.conf
+
+- name: httpd config mkdir ssl
+  file: path=/etc/httpd/ssl state=directory owner=root group=root mode=0755
+
+- name: httpd config copy server.crt
+  copy: src=server.crt dest=/etc/httpd/ssl/server.crt
+
+- name: httpd config copy server.key
+  copy: src=server.key dest=/etc/httpd/ssl/server.key
+
+- name: httpd.conf add LoadModule
+  lineinfile: dest=/etc/httpd/conf/httpd.conf line="LoadModule filter_module modules/mod_filter.so"
+
+- name: chown apache user
+  shell: chown -R apache\:apache {{source_path}}
+
+- name: make zen directory
+  file: path={{source_path}} state=directory owner=apache group=apache mode=0755
+
+- name: make current directory
+  file: src={{source_path}} dest=/var/www/html/zen/current state=link owner=apache group=apache mode=0755
+
+- name: chown apache user
+  shell: chown -R apache\:apache /var/www/html/zen/current
+
+- name: install composer
+  shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin creates=/usr/local/bin/composer
+
+- name: rename composer.phar to composer
+  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer creates=/usr/local/bin/composer
+
+- name: make composer executable
+  shell: chmod a+x /usr/local/bin/composer
+
+#- name: composer install
+#  composer: command=install working_dir={{source_path}}/sys
+#  sudo: yes
+#  sudo_user: apache
+
+- name: httpd restart
+  service: name=httpd enabled=yes state=restarted
+
+#- name: copy database.php
+#  copy: src=app/Config/development/database.php dest={{source_path}}/sys/app/Config/development/database.php
+
+#- name: copy email.php
+#  copy: src=app/Config/development/email.php dest={{source_path}}/sys/app/Config/development/email.php
+
+#- name: copy initializer.php
+#  copy: src=app/Config/development/initializer.php dest={{source_path}}/sys/app/Config/development/initializer.php
+
+#- name: copy AppConfig.php
+#  copy: src=app/Config/development/AppConfig.php dest={{source_path}}/sys/app/Config/development/AppConfig.php
+
+#- name: make shared directory
+#  file: path=/var/www/html/reclo/shared state=directory owner=apache group=apache mode=0755
+
+#- name: create admin htpassword
+#  htpasswd: path=/var/www/html/reclo/shared/.htpasswd name=admin password=admin owner=apache group=apache mode=0640
